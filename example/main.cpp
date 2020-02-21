@@ -12,7 +12,7 @@ PROVIDE_HOOK(hello, "A simple hellow world", CTX) {
 
 int main(int argc, char **argv) {
   CTX ctx(argc, argv);
-  if (argc > 2)
-    dlopen("example/libDumpArgs.so", RTLD_NOW);
+  if (argc > 1)
+    dlopen(argv[1], RTLD_NOW);
   hook_hello(ctx);
 }
