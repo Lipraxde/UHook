@@ -22,6 +22,10 @@ void uhook::HookRegister(const char *Name, const char *Desc, void *OrigF,
 
 void *uhook::HookReplace(const char *Name, void *NewF) {
   void **Hook = getHookMap()[Name];
+  if (Hook == nullptr) {
+    std::cerr << "Hook '" << Name << "' not found!\n";
+    abort();
+  }
   void *PrevF = *Hook;
   *Hook = NewF;
   return PrevF;

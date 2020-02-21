@@ -26,7 +26,7 @@ public:
 
 #define PROVIDE_HOOK(Name, Desc, CTXClass)                                     \
   int hook_##Name(CTXClass &);                                                 \
-  class __##Name : public uhook::HookProvider<__##Name, CTXClass> {            \
+  class __##Name : uhook::HookProvider<__##Name, CTXClass> {                   \
     __##Name() : HookProvider<__##Name, CTXClass>() {}                         \
     static const char *getName() { return #Name; }                             \
     static const char *getDesc() { return Desc; }                              \
