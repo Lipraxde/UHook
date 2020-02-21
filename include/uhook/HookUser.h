@@ -1,4 +1,4 @@
-#include <uhook/UHook.h>
+#include <uhook/Hook.h>
 
 namespace uhook {
 
@@ -22,16 +22,16 @@ public:
 
 #define USE_HOOK(Name, CTXClass)                                               \
   int (*orig_hook_##Name())(CTXClass &);                                       \
-  class __##Name : uhook::HookUser<__##Name, CTXClass> {                       \
-    __##Name() : HookUser<__##Name, CTXClass>() {}                             \
+  class __hook_user_##Name : uhook::HookUser<__hook_user_##Name, CTXClass> {   \
+    __hook_user_##Name() : HookUser<__hook_user_##Name, CTXClass>() {}         \
     static const char *getName() { return #Name; }                             \
     static int New(CTXClass &ctx);                                             \
-    static __##Name instance;                                                  \
-    friend uhook::HookUser<__##Name, CTXClass>;                                \
+    static __hook_user_##Name instance;                                        \
+    friend uhook::HookUser<__hook_user_##Name, CTXClass>;                      \
     friend int (*orig_hook_##Name())(CTXClass &);                              \
   };                                                                           \
-  __##Name __##Name::instance;                                                 \
+  __hook_user_##Name __hook_user_##Name::instance;                             \
   int (*orig_hook_##Name())(CTXClass &) {                                      \
-    return (int (*)(CTXClass &))__##Name::instance.orig_hook;                  \
+    return (int (*)(CTXClass &))__hook_user_##Name::instance.orig_hook;        \
   }                                                                            \
-  int __##Name::New(CTXClass &ctx)
+  int __hook_user_##Name::New(CTXClass &ctx)

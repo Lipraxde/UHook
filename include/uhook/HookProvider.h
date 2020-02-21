@@ -1,4 +1,4 @@
-#include <uhook/UHook.h>
+#include <uhook/Hook.h>
 
 namespace uhook {
 
@@ -26,15 +26,19 @@ public:
 
 #define PROVIDE_HOOK(Name, Desc, CTXClass)                                     \
   int hook_##Name(CTXClass &);                                                 \
-  class __##Name : uhook::HookProvider<__##Name, CTXClass> {                   \
-    __##Name() : HookProvider<__##Name, CTXClass>() {}                         \
+  class __hook_provider_##Name                                                 \
+      : uhook::HookProvider<__hook_provider_##Name, CTXClass> {                \
+    __hook_provider_##Name()                                                   \
+        : HookProvider<__hook_provider_##Name, CTXClass>() {}                  \
     static const char *getName() { return #Name; }                             \
     static const char *getDesc() { return Desc; }                              \
     static int Orig(CTXClass &ctx);                                            \
-    static __##Name instance;                                                  \
-    friend uhook::HookProvider<__##Name, CTXClass>;                            \
+    static __hook_provider_##Name instance;                                    \
+    friend uhook::HookProvider<__hook_provider_##Name, CTXClass>;              \
     friend int hook_##Name(CTXClass &);                                        \
   };                                                                           \
-  __##Name __##Name::instance;                                                 \
-  int hook_##Name(CTXClass &ctx) { return __##Name::instance.hook(ctx); }      \
-  int __##Name::Orig(CTXClass &ctx)
+  __hook_provider_##Name __hook_provider_##Name::instance;                     \
+  int hook_##Name(CTXClass &ctx) {                                             \
+    return __hook_provider_##Name::instance.hook(ctx);                         \
+  }                                                                            \
+  int __hook_provider_##Name::Orig(CTXClass &ctx)
