@@ -5,24 +5,13 @@
 
 namespace uhook {
 
-template <typename Provider, typename CTX> class HookProvider {
-  int (*_hook)(CTX &);
-  const char *getName() { return Provider::getName(); }
-  const char *getDesc() { return Provider::getDesc(); }
-  void *getOrigHook() { return (void *)&Provider::Orig; }
-
-  HookProvider() {
-    HookRegister(getName(), getDesc(), getOrigHook(), (void **)&_hook);
-  }
-  HookProvider(const HookProvider &) = delete;
-  HookProvider(HookProvider &&) = delete;
-  HookProvider operator=(const HookProvider &) = delete;
-  HookProvider operator=(HookProvider &&) = delete;
-
-  friend Provider;
-
+template <typename Provider, typename CTX, typename FTy = int(CTX &)>
+class HookProvider : HookBase {
 public:
-  int hook(CTX &ctx) { this->_hook(ctx); }
+  HookProvider()
+      : HookBase((void *)&Provider::Orig, Provider::getName(),
+                 Provider::getDesc(), true) {}
+  int hook(CTX &ctx) { ((FTy *)this->_hook)(ctx); }
 };
 
 } // namespace uhook

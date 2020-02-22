@@ -3,8 +3,18 @@
 
 namespace uhook {
 
-void HookRegister(const char *Name, const char *Desc, void *OrigF, void **Hook);
-void *HookReplace(const char *Name, void *NewF);
+class HookBase {
+public:
+  void *_hook;
+  const char *const Name;
+  const char *const Desc;
+
+  HookBase(void *_hook, const char *Name, const char *Desc, bool isProvider);
+  HookBase(const HookBase &) = delete;
+  HookBase(HookBase &&) = delete;
+  HookBase operator=(const HookBase &) = delete;
+  HookBase operator=(HookBase &&) = delete;
+};
 
 } // namespace uhook
 

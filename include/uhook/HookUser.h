@@ -5,37 +5,28 @@
 
 namespace uhook {
 
-template <typename User, typename CTX> class HookUser {
-  const char *getName() { return User::getName(); }
-  void *getNewHook() { return (void *)&User::New; }
-
-  HookUser() { orig_hook = HookReplace(getName(), getNewHook()); }
-  HookUser(const HookUser &) = delete;
-  HookUser(HookUser &&) = delete;
-  HookUser operator=(const HookUser &) = delete;
-  HookUser operator=(HookUser &&) = delete;
-
-  friend User;
-
+template <typename User, typename CTX, typename FTy = int(CTX &)>
+class HookUser : HookBase {
 public:
-  void *orig_hook;
+  HookUser() : HookBase((void *)&User::New, User::getName(), "", false) {}
+  int old_hook(CTX &ctx) { ((FTy *)this->_hook)(ctx); }
 };
 
 } // namespace uhook
 
 #define USE_HOOK(Name, CTXClass)                                               \
-  int (*orig_hook_##Name())(CTXClass &);                                       \
+  int old_hook_##Name(CTXClass &);                                             \
   class __hook_user_##Name : uhook::HookUser<__hook_user_##Name, CTXClass> {   \
     __hook_user_##Name() : HookUser<__hook_user_##Name, CTXClass>() {}         \
     static const char *getName() { return #Name; }                             \
     static int New(CTXClass &ctx);                                             \
     static __hook_user_##Name instance;                                        \
     friend uhook::HookUser<__hook_user_##Name, CTXClass>;                      \
-    friend int (*orig_hook_##Name())(CTXClass &);                              \
+    friend int old_hook_##Name(CTXClass &);                                    \
   };                                                                           \
   __hook_user_##Name __hook_user_##Name::instance;                             \
-  int (*orig_hook_##Name())(CTXClass &) {                                      \
-    return (int (*)(CTXClass &))__hook_user_##Name::instance.orig_hook;        \
+  int old_hook_##Name(CTXClass &ctx) {                                         \
+    return __hook_user_##Name::instance.old_hook(ctx);                         \
   }                                                                            \
   int __hook_user_##Name::New(CTXClass &ctx)
 

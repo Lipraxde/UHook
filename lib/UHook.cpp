@@ -1,32 +1,42 @@
-#include <iostream>
-#include <uhook/HookProvider.h>
+#include <uhook/Hook.h>
 
-#include <map>
-#include <string>
+#include <cstring>
+#include <iostream>
+#include <set>
 
 using namespace uhook;
 
-typedef std::map<std::string, void **> HookMap;
+struct HookMapComparator {
+  bool operator()(const HookBase *a, const HookBase *b) {
+    return std::strcmp(a->Name, b->Name) < 0;
+  }
+};
 
-HookMap &getHookMap() {
+typedef std::set<HookBase *, HookMapComparator> HookMap;
+
+static HookMap &getHookMap() {
   static HookMap map;
   return map;
 }
 
-void uhook::HookRegister(const char *Name, const char *Desc, void *OrigF,
-                         void **Hook) {
-  std::cout << Name << ": " << Desc << '\n';
-  getHookMap()[Name] = Hook;
-  *Hook = OrigF;
-}
-
-void *uhook::HookReplace(const char *Name, void *NewF) {
-  void **Hook = getHookMap()[Name];
-  if (Hook == nullptr) {
-    std::cerr << "Hook '" << Name << "' not found!\n";
-    abort();
+HookBase::HookBase(void *_hook, const char *Name, const char *Desc,
+                   bool isProvider)
+    : _hook(_hook), Name(Name), Desc(Desc) {
+  HookMap &Map = getHookMap();
+  if (isProvider) {
+    const auto [_, success] = Map.insert(this);
+    if (!success) {
+      std::cerr << "[UHook] Multiple registration of hook '" << Name << "'\n";
+      abort();
+    }
+  } else { // is HookUser
+    HookMap::iterator IT = Map.find(this);
+    if (IT == Map.end()) {
+      std::cerr << "[UHook] Unregistered reference to hook '" << Name << "'\n";
+      abort();
+    } else {
+      this->_hook = (*IT)->_hook;
+      (*IT)->_hook = _hook;
+    }
   }
-  void *PrevF = *Hook;
-  *Hook = NewF;
-  return PrevF;
 }
