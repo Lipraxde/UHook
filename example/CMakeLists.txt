@@ -11,7 +11,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 endif()
 
 add_executable(main main.cpp)
-add_library(DumpArgs SHARED DumpArgs.cpp)
+add_library(HookLib SHARED HookLib.cpp)
 
 target_link_libraries(main UHook ${CMAKE_DL_LIBS})
-target_link_libraries(DumpArgs UHook)
+target_link_libraries(HookLib UHook)

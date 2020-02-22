@@ -33,6 +33,7 @@ set(CMAKE_MODULE_PATH
     "${PROJECT_SOURCE_DIR}/cmake"
 )
 
+add_compile_options(-Wall)
 
 # Add include
 include_directories(include/)

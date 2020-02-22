@@ -11,7 +11,7 @@ public:
       : HookBase((void *)&Provider::Orig, Provider::getName(),
                  Provider::getDesc(), true) {}
   auto _hook(Args... args) {
-    ((typename Provider::FTy *)this->HookBase::_hook)(args...);
+    return ((typename Provider::FTy *)this->HookBase::_hook)(args...);
   }
 };
 
@@ -29,7 +29,7 @@ public:
                                                                                \
   public:                                                                      \
     template <typename... Args> static Ret hook(Args... args) {                \
-      instance._hook(args...);                                                 \
+      return instance._hook(args...);                                          \
     }                                                                          \
   };                                                                           \
   Name Name::instance;

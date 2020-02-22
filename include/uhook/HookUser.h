@@ -9,7 +9,7 @@ template <typename User, typename... Args> class HookUser : HookBase {
 public:
   HookUser() : HookBase((void *)&User::New, User::getName(), "", false) {}
   auto _old_hook(Args... args) {
-    ((typename User::FTy *)this->HookBase::_hook)(args...);
+    return ((typename User::FTy *)this->HookBase::_hook)(args...);
   }
 };
 
@@ -26,7 +26,7 @@ public:
                                                                                \
   public:                                                                      \
     template <typename... Args> static Ret old_hook(Args... args) {            \
-      instance._old_hook(args...);                                             \
+      return instance._old_hook(args...);                                      \
     }                                                                          \
   };                                                                           \
   Name Name::instance;
