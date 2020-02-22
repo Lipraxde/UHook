@@ -1,12 +1,13 @@
-#include "CTX.h"
 #include <uhook/HookUser.h>
 
 #include <iostream>
 
-USE_HOOK(hello, CTX) {
-  for (int i = 0; i < ctx.argc; ++i) {
-    std::cout << "Arg " << i << ": " << ctx.argv[i] << '\n';
+USE_HOOK(int, hello, int, char **)
+
+int NEW_HOOK(hello)(int argc, char **argv) {
+  for (int i = 0; i < argc; ++i) {
+    std::cout << "Arg " << i << ": " << argv[i] << '\n';
   }
-  old_hook_hello(ctx);
+  hello::old_hook(argc, argv);
   return 0;
 }

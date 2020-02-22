@@ -5,34 +5,35 @@
 
 namespace uhook {
 
-template <typename Provider, typename CTX, typename FTy = int(CTX &)>
-class HookProvider : HookBase {
+template <typename Provider, typename... Args> class HookProvider : HookBase {
 public:
   HookProvider()
       : HookBase((void *)&Provider::Orig, Provider::getName(),
                  Provider::getDesc(), true) {}
-  int hook(CTX &ctx) { ((FTy *)this->_hook)(ctx); }
+  auto _hook(Args... args) {
+    ((typename Provider::FTy *)this->HookBase::_hook)(args...);
+  }
 };
 
 } // namespace uhook
 
-#define PROVIDE_HOOK(Name, Desc, CTXClass)                                     \
-  int hook_##Name(CTXClass &);                                                 \
-  class __hook_provider_##Name                                                 \
-      : uhook::HookProvider<__hook_provider_##Name, CTXClass> {                \
-    __hook_provider_##Name()                                                   \
-        : HookProvider<__hook_provider_##Name, CTXClass>() {}                  \
+#define PROVIDE_HOOK(Ret, Name, Desc, ...)                                     \
+  class Name : public uhook::HookProvider<Name, ##__VA_ARGS__> {               \
+    using FTy = Ret(__VA_ARGS__);                                              \
+    Name() : uhook::HookProvider<Name, ##__VA_ARGS__>() {}                     \
     static const char *getName() { return #Name; }                             \
     static const char *getDesc() { return Desc; }                              \
-    static int Orig(CTXClass &ctx);                                            \
-    static __hook_provider_##Name instance;                                    \
-    friend uhook::HookProvider<__hook_provider_##Name, CTXClass>;              \
-    friend int hook_##Name(CTXClass &);                                        \
+    static Ret Orig(__VA_ARGS__);                                              \
+    static Name instance;                                                      \
+    friend uhook::HookProvider<Name, ##__VA_ARGS__>;                           \
+                                                                               \
+  public:                                                                      \
+    template <typename... Args> static Ret hook(Args... args) {                \
+      instance._hook(args...);                                                 \
+    }                                                                          \
   };                                                                           \
-  __hook_provider_##Name __hook_provider_##Name::instance;                     \
-  int hook_##Name(CTXClass &ctx) {                                             \
-    return __hook_provider_##Name::instance.hook(ctx);                         \
-  }                                                                            \
-  int __hook_provider_##Name::Orig(CTXClass &ctx)
+  Name Name::instance;
+
+#define ORIG_HOOK(Name) Name::Orig
 
 #endif // UHOOK_HOOKPROVIDER_H
