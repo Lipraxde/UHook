@@ -1,4 +1,5 @@
 #include "CTX.h"
+#include <uhook/Hook.h>
 #include <uhook/HookProvider.h>
 
 #include <iostream>

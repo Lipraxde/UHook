@@ -6,32 +6,30 @@
 
 using namespace uhook;
 
-struct HookMapComparator {
-  bool operator()(const HookBase *a, const HookBase *b) {
-    return std::strcmp(a->Name, b->Name) < 0;
-  }
-};
-
-typedef std::set<HookBase *, HookMapComparator> HookMap;
-
-static HookMap &getHookMap() {
-  static HookMap map;
-  return map;
+bool HookSetComparator::operator()(const HookBase *a, const HookBase *b) {
+  return std::strcmp(a->Name, b->Name) < 0;
 }
+
+static HookSet &getHookSet() {
+  static HookSet set;
+  return set;
+}
+
+const HookSet &uhook::getHookSet() { return ::getHookSet(); }
 
 HookBase::HookBase(void *_hook, const char *Name, const char *Desc,
                    bool isProvider)
     : _hook(_hook), Name(Name), Desc(Desc) {
-  HookMap &Map = getHookMap();
+  HookSet &Set = ::getHookSet();
   if (isProvider) {
-    const auto [_, success] = Map.insert(this);
+    const auto [_, success] = Set.insert(this);
     if (!success) {
       std::cerr << "[UHook] Multiple registration of hook '" << Name << "'\n";
       abort();
     }
   } else { // is HookUser
-    HookMap::iterator IT = Map.find(this);
-    if (IT == Map.end()) {
+    HookSet::iterator IT = Set.find(this);
+    if (IT == Set.end()) {
       std::cerr << "[UHook] Unregistered reference to hook '" << Name << "'\n";
       abort();
     } else {

@@ -1,6 +1,8 @@
 #ifndef UHOOK_HOOK_H
 #define UHOOK_HOOK_H
 
+#include <set>
+
 namespace uhook {
 
 class HookBase {
@@ -15,6 +17,13 @@ public:
   HookBase operator=(const HookBase &) = delete;
   HookBase operator=(HookBase &&) = delete;
 };
+
+struct HookSetComparator {
+  bool operator()(const HookBase *, const HookBase *);
+};
+typedef std::set<HookBase *, HookSetComparator> HookSet;
+
+const HookSet &getHookSet();
 
 } // namespace uhook
 
