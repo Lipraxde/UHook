@@ -1,3 +1,6 @@
+#ifndef UHOOK_HOOKPROVIDER_H
+#define UHOOK_HOOKPROVIDER_H
+
 #include <uhook/Hook.h>
 
 namespace uhook {
@@ -42,3 +45,5 @@ public:
     return __hook_provider_##Name::instance.hook(ctx);                         \
   }                                                                            \
   int __hook_provider_##Name::Orig(CTXClass &ctx)
+
+#endif // UHOOK_HOOKPROVIDER_H

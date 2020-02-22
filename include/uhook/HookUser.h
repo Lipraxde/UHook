@@ -1,3 +1,6 @@
+#ifndef UHOOK_HOOKUSER_H
+#define UHOOK_HOOKUSER_H
+
 #include <uhook/Hook.h>
 
 namespace uhook {
@@ -35,3 +38,5 @@ public:
     return (int (*)(CTXClass &))__hook_user_##Name::instance.orig_hook;        \
   }                                                                            \
   int __hook_user_##Name::New(CTXClass &ctx)
+
+#endif // UHOOK_HOOKUSER_H
