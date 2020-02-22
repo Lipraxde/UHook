@@ -10,8 +10,14 @@ public:
   HookProvider()
       : HookBase((void *)&Provider::Orig, Provider::getName(),
                  Provider::getDesc(), true) {}
-  auto _hook(Args... args) {
-    return ((typename Provider::FTy *)this->HookBase::_hook)(args...);
+
+  static auto hook(Args... args) {
+    return ((typename Provider::FTy *)Provider::instance.getHook())(args...);
+  }
+
+  static auto self(Args... args) { return Provider::Orig(args...); }
+  static bool is_me() {
+    return Provider::instance.getHook() == &Provider::Orig;
   }
 };
 
@@ -26,11 +32,6 @@ public:
     static Ret Orig(__VA_ARGS__);                                              \
     static Name instance;                                                      \
     friend uhook::HookProvider<Name, ##__VA_ARGS__>;                           \
-                                                                               \
-  public:                                                                      \
-    template <typename... Args> static Ret hook(Args... args) {                \
-      return instance._hook(args...);                                          \
-    }                                                                          \
   };                                                                           \
   Name Name::instance;
 

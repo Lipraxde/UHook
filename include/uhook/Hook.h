@@ -6,8 +6,9 @@
 namespace uhook {
 
 class HookBase {
-public:
   void *_hook;
+
+public:
   const char *const Name;
   const char *const Desc;
 
@@ -16,6 +17,8 @@ public:
   HookBase(HookBase &&) = delete;
   HookBase operator=(const HookBase &) = delete;
   HookBase operator=(HookBase &&) = delete;
+
+  void *getHook() { return _hook; }
 };
 
 struct HookSetComparator {

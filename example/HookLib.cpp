@@ -18,7 +18,7 @@ USE_HOOK(uint64_t, calc, uint64_t)
 uint64_t NEW_HOOK(calc)(uint64_t i) {
   // Factorial
   if (i > 1)
-    return i * calc::New(i - 1);
+    return i * calc::self(i - 1);
   else
     return 1;
 }
