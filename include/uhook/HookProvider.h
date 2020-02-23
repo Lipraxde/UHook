@@ -9,16 +9,15 @@ template <typename Provider, typename... Args> class HookProvider : HookBase {
   HookProvider()
       : HookBase((void *)&Provider::Orig, Provider::getName(),
                  Provider::getDesc(), true) {}
+  inline static Provider instance;
 
 public:
   static auto hook(Args... args) {
-    return ((typename Provider::FTy *)Provider::instance.getHook())(args...);
+    return ((typename Provider::FTy *)instance.getHook())(args...);
   }
 
   static auto self(Args... args) { return Provider::Orig(args...); }
-  static bool is_me() {
-    return Provider::instance.getHook() == &Provider::Orig;
-  }
+  static bool is_me() { return instance.getHook() == &Provider::Orig; }
 
   friend Provider;
 };
@@ -32,10 +31,9 @@ public:
     static const char *getName() { return #Name; }                             \
     static const char *getDesc() { return Desc; }                              \
     static Ret Orig(__VA_ARGS__);                                              \
-    static Name instance;                                                      \
     friend uhook::HookProvider<Name, ##__VA_ARGS__>;                           \
   };                                                                           \
-  Name Name::instance;
+  template class uhook::HookProvider<Name, ##__VA_ARGS__>;
 
 #define ORIG_HOOK(Name) Name::Orig
 

@@ -7,10 +7,11 @@ namespace uhook {
 
 template <typename User, typename... Args> class HookUser : HookBase {
   HookUser() : HookBase((void *)&User::New, User::getName(), "", false) {}
+  inline static User instance;
 
 public:
   static auto old_hook(Args... args) {
-    return ((typename User::FTy *)User::instance.getHook())(args...);
+    return ((typename User::FTy *)instance.getHook())(args...);
   }
 
   static auto self(Args... args) { return User::New(args...); }
@@ -26,10 +27,9 @@ public:
     Name() : HookUser<Name, ##__VA_ARGS__>() {}                                \
     static const char *getName() { return #Name; }                             \
     static Ret New(__VA_ARGS__);                                               \
-    static Name instance;                                                      \
     friend uhook::HookUser<Name, ##__VA_ARGS__>;                               \
   };                                                                           \
-  Name Name::instance;
+  template class uhook::HookUser<Name, ##__VA_ARGS__>;
 
 #define NEW_HOOK(Name) Name::New
 
