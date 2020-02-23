@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
   // Loading the hook library by set "LD_PRELOAD" is a bit dirty
   if (argc > 1)
     if (dlopen(argv[1], RTLD_NOW) == nullptr) {
-      std::cout << "[Error]\n";
+      std::cerr << "[Error]\n";
       std::cerr << "  Fail to open the hook library\n";
     }
 

@@ -6,11 +6,11 @@
 namespace uhook {
 
 template <typename Provider, typename... Args> class HookProvider : HookBase {
-public:
   HookProvider()
       : HookBase((void *)&Provider::Orig, Provider::getName(),
                  Provider::getDesc(), true) {}
 
+public:
   static auto hook(Args... args) {
     return ((typename Provider::FTy *)Provider::instance.getHook())(args...);
   }
@@ -19,6 +19,8 @@ public:
   static bool is_me() {
     return Provider::instance.getHook() == &Provider::Orig;
   }
+
+  friend Provider;
 };
 
 } // namespace uhook

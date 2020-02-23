@@ -6,14 +6,16 @@
 namespace uhook {
 
 template <typename User, typename... Args> class HookUser : HookBase {
-public:
   HookUser() : HookBase((void *)&User::New, User::getName(), "", false) {}
 
+public:
   static auto old_hook(Args... args) {
     return ((typename User::FTy *)User::instance.getHook())(args...);
   }
 
   static auto self(Args... args) { return User::New(args...); }
+
+  friend User;
 };
 
 } // namespace uhook
